@@ -23,26 +23,21 @@ public class ParqueaderoService {
 
     @Transactional
     public ParqueaderoResponse crear(ParqueaderoRequest request) {
-        // Verificar que el nombre no exista
         if (parqueaderoRepository.existsByNombre(request.getNombre())) {
             throw new BadRequestException("Ya existe un parqueadero con ese nombre");
         }
 
-        // Verificar que el socio existe
         User socio = userRepository.findById(request.getSocioId())
                 .orElseThrow(() -> new BadRequestException("El socio no existe"));
 
-        // Verificar que el usuario sea realmente un SOCIO
         if (!socio.getRole().getNombre().equals("SOCIO")) {
             throw new BadRequestException("El usuario especificado no es un socio");
         }
 
-        // Verificar que el socio esté activo
         if (!socio.isActive()) {
             throw new BadRequestException("El socio está inactivo");
         }
 
-        // Crear el parqueadero
         Parqueadero parqueadero = Parqueadero.builder()
                 .nombre(request.getNombre())
                 .direccion(request.getDireccion())
@@ -94,27 +89,22 @@ public class ParqueaderoService {
         Parqueadero parqueadero = parqueaderoRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Parqueadero no encontrado"));
 
-        // Verificar si el nombre cambió y si ya existe
         if (!parqueadero.getNombre().equals(request.getNombre()) &&
                 parqueaderoRepository.existsByNombre(request.getNombre())) {
             throw new BadRequestException("Ya existe un parqueadero con ese nombre");
         }
 
-        // Verificar que el socio existe
         User socio = userRepository.findById(request.getSocioId())
                 .orElseThrow(() -> new BadRequestException("El socio no existe"));
 
-        // Verificar que el usuario sea realmente un SOCIO
         if (!socio.getRole().getNombre().equals("SOCIO")) {
             throw new BadRequestException("El usuario especificado no es un socio");
         }
 
-        // Verificar que el socio esté activo
         if (!socio.isActive()) {
             throw new BadRequestException("El socio está inactivo");
         }
 
-        // Actualizar datos
         parqueadero.setNombre(request.getNombre());
         parqueadero.setDireccion(request.getDireccion());
         parqueadero.setCapacidadMaxima(request.getCapacidadMaxima());
@@ -131,7 +121,6 @@ public class ParqueaderoService {
         Parqueadero parqueadero = parqueaderoRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Parqueadero no encontrado"));
 
-        // Soft delete
         parqueadero.setActivo(false);
         parqueaderoRepository.save(parqueadero);
     }

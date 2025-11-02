@@ -21,7 +21,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // 1. Crear roles si no existen
+        // Crea roles si no existen
         Role adminRole = roleRepository.findByNombre("ADMIN")
                 .orElseGet(() -> {
                     Role role = Role.builder()
@@ -44,7 +44,7 @@ public class DataInitializer implements CommandLineRunner {
                     return role;
                 });
 
-        // 2. Crear usuario admin si no existe
+        // Crea usuario admin si no existe
         if (!userRepository.existsByEmail("admin@mail.com")) {
             User admin = User.builder()
                     .nombre("Administrador")

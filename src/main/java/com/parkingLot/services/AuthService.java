@@ -30,24 +30,18 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        // Verificar si el usuario existe
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadRequestException("Email o contraseña incorrectos"));
 
-        // Verificar si el usuario está activo
         if (!user.isActive()) {
             throw new BadRequestException("El usuario está inactivo");
         }
 
-        // Autenticar
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
-                        request.getPassword()
-                )
-        );
+                        request.getPassword()));
 
-        // Generar token
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().getNombre());
 
         return AuthResponse.builder()
@@ -61,7 +55,6 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        // Verificar que el usuario que está registrando sea ADMIN
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new BadRequestException("Debe estar autenticado para registrar usuarios");
@@ -74,16 +67,13 @@ public class AuthService {
             throw new BadRequestException("Solo los administradores pueden registrar usuarios");
         }
 
-        // Verificar si el email ya existe
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("El email ya está registrado");
         }
 
-        // Obtener el rol SOCIO
         Role socioRole = roleRepository.findByNombre("SOCIO")
                 .orElseThrow(() -> new BadRequestException("Rol SOCIO no encontrado"));
 
-        // Crear nuevo usuario con rol SOCIO
         User newUser = User.builder()
                 .nombre(request.getNombre())
                 .email(request.getEmail())
@@ -94,7 +84,6 @@ public class AuthService {
 
         userRepository.save(newUser);
 
-        // Generar token para el nuevo usuario
         String token = jwtUtil.generateToken(newUser.getEmail(), newUser.getRole().getNombre());
 
         return AuthResponse.builder()
@@ -113,7 +102,6 @@ public class AuthService {
             throw new BadRequestException("No hay una sesión activa");
         }
 
-        // Limpiar el contexto de seguridad
         SecurityContextHolder.clearContext();
 
         return AuthResponse.builder()
