@@ -26,4 +26,7 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Long> {
 
     @Query("SELECT COUNT(v) FROM Vehiculo v WHERE v.parqueadero.id = :parqueaderoId AND v.fechaSalida IS NULL AND v.activo = true")
     long countByParqueaderoIdAndFechaSalidaIsNull(@Param("parqueaderoId") Long parqueaderoId);
+
+    @Query("SELECT v FROM Vehiculo v WHERE UPPER(v.placa) LIKE UPPER(CONCAT('%', :searchTerm, '%')) AND v.fechaSalida IS NULL AND v.activo = true ORDER BY v.fechaIngreso DESC")
+    List<Vehiculo> findByPlacaContainingIgnoreCaseAndFechaSalidaIsNull(@Param("searchTerm") String searchTerm);
 }
